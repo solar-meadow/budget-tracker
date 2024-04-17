@@ -2,12 +2,13 @@ import express from 'express';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import router from './routers/index.js';
+import jsonValidator from './middleware/json_validator.js';
 import 'dotenv/config';
 
 const app = express();
 app.use(morgan('dev'));
-const API_VERSION = process.env.API_VERSION || 'v0';
-app.use(`/api/${API_VERSION}`, router);
+app.use(express.json(), jsonValidator);
+app.use(`/api/v1`, router);
 
 const ConnectDB = async function () {
     try {
