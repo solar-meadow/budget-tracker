@@ -24,8 +24,13 @@ const createPurchase = async (req, res) => {
         quantity: product.quantity,
     }));
 
+    const debtors = req.body.debtors.map((debtor) => ({
+        user_id: debtor.user_id,
+    }));
+
     const doc = new PurchaseModel({
         products: products,
+        debtors: debtors,
         user_id: req.body.user_id,
     });
     try {
