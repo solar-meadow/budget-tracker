@@ -8,7 +8,7 @@ import 'dotenv/config';
 const app = express();
 app.use(morgan('dev'));
 app.use(express.json(), jsonValidator);
-app.use(`/api/v1`, router);
+app.use(`/api`, router);
 
 const ConnectDB = async function () {
     try {

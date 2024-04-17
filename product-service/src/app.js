@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true }), (err, req, res, next) => {
     }
 });
 app.use(morgan('dev'));
-app.use(router);
+app.use('/api', router);
 
 connectDB()
     .then(() => {
