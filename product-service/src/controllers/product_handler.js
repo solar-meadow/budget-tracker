@@ -7,32 +7,36 @@ const getProducts = async (req, res) => {
 }
 
 const createProduct = async (req, res) => {
-  const savedProducts = []
-
+  if (!req.body?.length) {
+    return res.status(400).json({ message: 'Empty request body' })
+  }
   try {
-    const results = await Promise.all(
-      req.body.map(async (product) => {
-        const doc = new ProductModel({
-          product_name: product.product_name,
-          description: product.description
-        })
+    const results = []
+    for (const product of req.body) {
+      // check product_name exist
+      validateProduct(product)
 
-        console.log('test')
+      const exist = await getProductByName(product.product_name)
+      if (exist) {
+        const error = new Error(
+          `Product name ${product.product_name} already exists`
+        )
 
-        try {
-          const prod = await doc.save()
-          return { product: prod, status: 200, message: 'ok' }
-        } catch (err) {
-          console.error(err)
-          return { product: prod, status: 500, message: err }
-        }
+        error.code = 400
+        throw error
+      }
+
+      const doc = new ProductModel({
+        product_name: product.product_name,
+        description: product?.description
       })
-    )
-
-    res.json(results)
+      const savedProduct = await doc.save()
+      results.push(savedProduct)
+    }
+    return res.status(200).json({ results })
   } catch (err) {
-    console.error(err)
-    res.status(500).json('An error occurred while saving products')
+    const statusCode = err.code || 500
+    return res.status(statusCode).json({ message: err.message })
   }
 }
 
@@ -88,6 +92,21 @@ const getProductById = async (req, res) => {
     res.sendStatus(404)
   } else {
     res.send(product)
+  }
+}
+
+const getProductByName = async (name) => {
+  try {
+    const product = await ProductModel.findOne({ product_name: name })
+    return product
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const validateProduct = (product) => {
+  if (!product?.product_name) {
+    throw new Error('need property in json object product_name')
   }
 }
 
