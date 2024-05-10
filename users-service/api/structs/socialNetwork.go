@@ -1,8 +1,8 @@
 package structs
 
 type SocialNetwork struct {
-	ID        int    `json:"id"`
+	ID        int    `json:"id,omitempty"`
 	UserId    int    `json:"omitempty"`
 	Name      string `json:"name"`
-	NetworkId int    `json:"network_id"`
+	NetworkId string `json:"network_id"`
 }

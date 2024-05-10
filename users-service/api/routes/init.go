@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"budget-tracker/api/repository"
 	"budget-tracker/api/structs"
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,15 +11,15 @@ import (
 )
 
 type Router struct {
-	config *structs.Config
-	db     *sql.DB
+	config     *structs.Config
+	repository repository.Repository
 }
 
-func NewRouter(config *structs.Config, db *sql.DB) *Router {
-	return &Router{config: config, db: db}
+func NewRouter(config *structs.Config, repository repository.Repository) *Router {
+	return &Router{config: config, repository: repository}
 }
 
-func (r *Router) InitRoutes() {
+func (r *Router) StartServer() {
 	router := mux.NewRouter()
 	router.HandleFunc("/health", r.healthHandler).Methods(http.MethodGet)
 
@@ -30,6 +30,6 @@ func (r *Router) InitRoutes() {
 
 	api.HandleFunc("/users/create", r.createUser).Methods(http.MethodPost)
 
-	fmt.Printf("listening on %s", ":8080")
+	fmt.Printf("listening on %s\n", ":8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
