@@ -6,9 +6,10 @@ export class HttpClient {
   }
 
   post(url, payload) {
-    console.log(payload);
-
     return fetch(url, {
+      headers: {
+        "content-type": "application/json",
+      },
       method: "POST",
       body: JSON.stringify(payload),
     });

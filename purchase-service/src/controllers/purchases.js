@@ -1,12 +1,18 @@
-import e from "express";
 import PurchaseModel from "../models/purchase.js";
 
 const getAllPurchases = async (req, res) => {
-  const purchase = await PurchaseModel.find({ isDeleted: false });
-  if (!purchase) {
+  const { userId } = req.query;
+  if (userId) {
+    const myDebts = getPurchasesByUserId(res, userId);
+    return;
+  }
+
+  const purchases = await PurchaseModel.find({ isDeleted: false });
+  if (!purchases) {
     res.sendStatus(404);
   }
-  res.send(purchase);
+
+  res.send(purchases);
 };
 
 const getPurchaseById = async (req, res) => {
@@ -17,8 +23,18 @@ const getPurchaseById = async (req, res) => {
   res.send(purchase);
 };
 
+const getPurchasesByUserId = async (res, userId) => {
+  const purchases = await PurchaseModel.find({ isDeleted: false });
+  const myDebts = purchases?.filter((purchase) =>
+    purchase.debtors.find((debt) => debt.user_id === userId)
+  );
+  if (!myDebts.length) {
+    return res.sendStatus(404);
+  }
+  res.send(myDebts);
+};
+
 const createPurchase = async (req, res) => {
-  // console.log(req.body);
   const products = req.body.products.map((product) => ({
     product_id: product.product_id,
     price: product.price,
